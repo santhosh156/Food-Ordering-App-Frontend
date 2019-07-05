@@ -39,6 +39,8 @@ TabContainer.propTypes = {
 
 class Header extends Component {
 
+    
+
     constructor(props) {
         super(props);
         this.state = {
@@ -54,10 +56,13 @@ class Header extends Component {
             lastnameRequired: "dispNone",
             email: "",
             emailRequired: "dispNone",
+            emailError: "",
             password: "",
             passwordRequired: "dispNone",
+            passwordError: "",
             contactno: "",
-            contactnoRequired: "dispNone"
+            contactnoRequired: "dispNone",
+            contactnoError: ""
         };
     }
 
@@ -88,12 +93,45 @@ class Header extends Component {
         this.setState({loginpassword: e.target.value});
     }
 
-    registerClickHandler = () => {
+    signupClickHandler = () => {
         this.state.firstname === "" ? this.setState({firstnameRequired: "dispBlock"}) : this.setState({firstnameRequired: "dispNone"});
         this.state.lastname === "" ? this.setState({lastnameRequired: "dispBlock"}) : this.setState({lastnameRequired: "dispNone"});
-        this.state.email === "" ? this.setState({emailRequired: "dispBlock"}) : this.setState({emailRequired: "dispNone"});
         this.state.password === "" ? this.setState({passwordRequired: "dispBlock"}) : this.setState({passwordRequired: "dispNone"});
         this.state.contactno === "" ? this.setState({contactnoRequired: "dispBlock"}) : this.setState({contactnoRequired: "dispNone"});
+
+        /*if (this.state.password === "") {
+            this.setState({passwordRequired: "dispBlock"});
+            this.setState({passwordError: "required"});
+        } else if (this.state.password.toString().match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,32}$/i) === null) {
+            this.setState({passwordRequired: "dispBlock"});
+            this.setState({passwordError: "Password must contain at least one capital letter, one small letter, one number, and one special character"});
+        } else {
+            this.setState({passwordRequired: "dispNone"});
+            this.setState({passwordError: ""});
+        }
+
+        if (this.state.email === "") {
+            this.setState({emailRequired: "dispBlock"});
+            this.setState({emailError: "required"});
+        } else if (this.state.email.toString().match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i) === null) {
+            this.setState({emailRequired: "dispBlock"});
+            this.setState({emailError: "Invalid Email"});
+        } else {
+            this.setState({emailRequired: "dispNone"});
+            this.setState({emailError: ""});
+        }*/
+
+        //Contact No. must contain only numbers and must be 10 digits long
+        if (this.state.contactno === "") {
+            this.setState({contactnoRequired: "dispBlock"});
+            this.setState({contactnoError: "required"});
+        } else if (this.state.contactno.toString().match(/^(?=.*\d).{10,10}$/i) === null) {
+            this.setState({contactnoRequired: "dispBlock"});
+            this.setState({contactnoError: "Contact No. must contain only numbers and must be 10 digits long"});
+        } else {
+            this.setState({contactnoRequired: "dispNone"});
+            this.setState({contactnoError: ""});
+        }
     }
 
     inputFirstnameHandler = (e) => {
@@ -136,12 +174,12 @@ class Header extends Component {
 
                 <Modal  ariaHideApp={false} 
                         isOpen={this.state.modalIsOpen} 
-                        contentLabel='Login' 
+                        contentLabel='LOGIN' 
                         onRequestClose={this.closeModalHandler}
                         style={customStyles}>
                     <Tabs className="tabs" value={this.state.value} onChange={this.tabChangeHandler} variant="fullWidth">
-                        <Tab label="Login" />
-                        <Tab label="Register" />
+                        <Tab label="LOGIN" />
+                        <Tab label="SIGNUP" />
                     </Tabs>
                     {this.state.value === 0 &&
                     <TabContainer>
@@ -182,7 +220,7 @@ class Header extends Component {
                                 <InputLabel htmlFor="email">Email</InputLabel>
                                 <Input id="email" type="email" className={this.state.email} onChange={this.inputEmailHandler} />
                                 <FormHelperText className={this.state.emailRequired}>
-                                    <span className="red">required</span>
+                                    <span className="red">{this.state.emailError}</span>
                                 </FormHelperText>
                             </FormControl>
                             <br /> <br />
@@ -190,7 +228,7 @@ class Header extends Component {
                                 <InputLabel htmlFor="password">Password</InputLabel>
                                 <Input id="password" type="password" className={this.state.password} onChange={this.inputPasswordHandler} />
                                 <FormHelperText className={this.state.passwordRequired}>
-                                    <span className="red">required</span>
+                                    <span className="red">{this.state.passwordError}</span>
                                 </FormHelperText>
                             </FormControl>
                             <br /> <br />
@@ -198,11 +236,11 @@ class Header extends Component {
                                 <InputLabel htmlFor="contactno">Contact No.</InputLabel>
                                 <Input id="contactno" type="text" className={this.state.contactno} onChange={this.inputContactnoHandler} />
                                 <FormHelperText className={this.state.contactnoRequired}>
-                                    <span className="red">required</span>
+                                    <span className="red">{this.state.contactnoError}</span>
                                 </FormHelperText>
                             </FormControl>
                             <br /> <br />
-                            <Button variant="contained" color="primary" onClick={this.registerClickHandler}>REGISTER</Button>
+                            <Button variant="contained" color="primary" onClick={this.signupClickHandler}>SIGNUP</Button>
                         </TabContainer>
                         }
                 </Modal>
