@@ -14,6 +14,8 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
 import Snackbar from '@material-ui/core/Snackbar';
+import { withRouter } from 'react-router-dom';
+import Grid from '@material-ui/core/Grid';
 
 const customStyles = {
     content: {
@@ -25,6 +27,7 @@ const customStyles = {
         transform: 'translate(-50%, -50%)'
     }
 };
+
 
 const TabContainer = function(props) {
     return(
@@ -39,6 +42,8 @@ TabContainer.propTypes = {
 };
 
 class Header extends Component {
+
+    
 
     constructor(props) {
         super(props);
@@ -64,7 +69,8 @@ class Header extends Component {
             contactno: "",
             contactnoRequired: "dispNone",
             contactnoError: "",
-            signupSuccess: false
+            signupSuccess: false,
+            loggedIn: sessionStorage.getItem("access-token") == null ? false : true
         };
     }
 
@@ -84,8 +90,6 @@ class Header extends Component {
 
     loginClickHandler = () => {
 
-        console.log(this.state.loginContactno.toString().match(/^(?=.*\d).{10,10}$/i) === null);
-
         if (this.state.loginContactno === "") {
             this.setState({loginContactnoRequired: "dispBlock"});
             this.setState({loginContactnoError: "required"});
@@ -104,20 +108,15 @@ class Header extends Component {
         let that = this;
         xhrLogin.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
-                if (xhrLogin.status === 200 || xhrLogin.status === 201){
                 sessionStorage.setItem("uuid", JSON.parse(this.responseText).id);
                 sessionStorage.setItem("access-token", xhrLogin.getResponseHeader("access-token"));
 
                 that.setState({
-                    loggedIn: true,
-                    loginSnackBarIsOpen: true,
-                    
+                    loggedIn: true
                 });
 
                 that.closeModalHandler();
-
             }
-        }
         });
 
         xhrLogin.open("POST", "http://localhost:8080/api/customer/login");
@@ -136,6 +135,7 @@ class Header extends Component {
     }
 
     signupClickHandler = () => {
+        
         this.state.firstname === "" ? this.setState({firstnameRequired: "dispBlock"}) : this.setState({firstnameRequired: "dispNone"});
         this.state.lastname === "" ? this.setState({lastnameRequired: "dispBlock"}) : this.setState({lastnameRequired: "dispNone"});
         this.state.password === "" ? this.setState({passwordRequired: "dispBlock"}) : this.setState({passwordRequired: "dispNone"});
@@ -227,22 +227,39 @@ class Header extends Component {
         this.setState({contactno: e.target.value});
     }
 
+    logoutHandler = (e) => {
+        sessionStorage.removeItem("uuid");
+        sessionStorage.removeItem("access-token");
+
+        this.setState({
+            loggedIn: false
+        });
+    }
+
     render() {  
         return(
             <div>
+
                 <header className="app-header flex-container">
-                    <div className="app-logo"> 
-                        <Fastfood style={{fontSize: "35px"}}/>
-                    </div>
-                    <div className="searchbox">
-                        <Search />
-                        <Input style={{color: "grey"}} type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
-                    </div>
-                    <div className="login">
-                        <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
-                            <AccountCircle className="account-circle"/>LOGIN
-                        </Button>
-                    </div>
+
+                    <Grid container spacing={3} justify="space-between" alignItems="center">
+                        <Grid item xs={12} sm>
+                            <div className="app-logo"> 
+                                <Fastfood style={{fontSize: "35px"}}/>
+                            </div>
+                        </Grid>
+                        { this.props.match.path ==="/" ? <Grid item xs={12} sm> <div className="searchbox">
+                            <Search />
+                            <Input style={{color: "grey", width:250}} className="searchField" type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
+                        </div> </Grid> : ""}
+                        <Grid item xs={12} sm >
+                            <div className="login">
+                                <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
+                                    <AccountCircle className="account-circle"/>LOGIN
+                                </Button>                                
+                            </div>
+                        </Grid>
+                    </Grid>
                 </header>
 
                 <Modal  ariaHideApp={false} 
@@ -319,11 +336,18 @@ class Header extends Component {
                 </Modal>
                 { this.state.signupSuccess === true &&
                     <Snackbar
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+                    anchorOrigin={{ vertiAcal: 'bottom', horizontal: 'left', }}
                     autoHideDuration={3000}
-                    style={{ vertical: 'bottom', horizontal: 'left' }}
                     ContentProps={{ 'aria-describedby': 'message-id', }}
                     message={<span id="message-id">Registered successfully! Please login now!</span>}
+                    />
+                }
+                { this.state.loggedIn === true &&
+                    <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+                    autoHideDuration={3000}
+                    ContentProps={{ 'aria-describedby': 'message-id', }}
+                    message={<span id="message-id">Logged in successfully!</span>}
                     />
                 }
             </div>
@@ -332,4 +356,4 @@ class Header extends Component {
 
 }
 
-export default Header;
+export default withRouter(Header);

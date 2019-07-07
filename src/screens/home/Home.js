@@ -1,56 +1,115 @@
 import React, { Component } from 'react';
 import './Home.css';
 import Header from '../../common/Header/Header';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+
+const styles = theme => ({
+    media: {
+      height: 140
+    },
+});
 
 class Home extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            restaurant_picture: '',
-            restaurant_name: '',
-            restaurant_categories: '',
-            access_token: sessionStorage.getItem('access-token'),
-            allRestaurants: null,
-            filteredRestaurants: null
-        };
-
+            restaurants: null,
+            filteredRestaurants: null,
+            loggedIn: sessionStorage.getItem("access-token") == null ? false : true
+        }
     }
 
-    /**
-     * @description On component load - Get all restaurants
-     */
-
-    /*componentWillMount() {
+    componentWillMount() {
 
         // Get user profile
         let dataUserProfile = null;
         let xhrUserProfile = new XMLHttpRequest();
         let that = this;
-        xhrUserProfile.addEventListener("readystatechange", function() {
-            if (this.readyState === 4) {
-                const data = JSON.parse(this.responseText).data;
-                that.setState({
-                    restaurant_picture: data.restaurant_picture,
-                    restaurant_name: data.restaurant_name,
-                    restaurant_categories: data.restaurant_categories
-                });
-            }
+        xhrUserProfile.addEventListener("readystatechange", function () {
+        if (this.readyState === 4) {
+            const data = JSON.parse(this.responseText).restaurants;
+            // console.log('restaurants::',data);
+            that.setState({
+                restaurants : data,
+                filteredRestaurants: data,
+            }); 
+        }
         });
-        xhrUserProfile.open("GET", this.props.baseUrl + "/api/restaurant/?access_token=" + this.state.access_token);
-        //xhrUserProfile.setRequestHeader("Cache-Control", "no-cache");
+        xhrUserProfile.open("GET",  this.props.baseUrl +  "restaurant");
+        xhrUserProfile.setRequestHeader("Cache-Control", "no-cache");
         xhrUserProfile.send(dataUserProfile);
+    }
 
-    }*/
+    restaurantClickHandler = (restaurant_id, e) => {        
+        this.props.history.push("/restaurant/"+restaurant_id);       
+    };
+
+    applyFilter = (e) => {
+        const _searchText = (e.target.value).toLowerCase();
+        let _restaurants = JSON.parse(JSON.stringify(this.state.restaurants));
+        let _filteredRestaurants = [];
+        if(_restaurants !== null && _restaurants.length > 0){
+            _filteredRestaurants = _restaurants.filter((restaurant) => 
+                 (restaurant.restaurant_name.toLowerCase()).indexOf(_searchText) > -1 
+            );
+            this.setState({
+                filteredRestaurants: [..._filteredRestaurants]
+            });
+        }
+    }
+
 
     render() {
+        const { classes } = this.props;
         return (
             <div>
-                <Header />
+                <Header baseUrl={this.props.baseUrl} searchChangeHandler={this.applyFilter}/>
+                <Container fixed style={{ 'margin':16}}>
+                    <Grid container spacing={3}>
+                        {(this.state.filteredRestaurants || []).map((restaurant, index) => (
+                            <Grid item xs={6} sm={3} key={restaurant.id} >
+                            <Card onClick={this.restaurantClickHandler.bind(this,restaurant.id)} >
+                                <CardActionArea>
+                                    <CardMedia
+                                    className={classes.media}
+                                    image={restaurant.photo_URL}
+                                    title={restaurant.restaurant_name}
+                                    />
+                                    <CardContent>
+                                    <Typography gutterBottom variant="h5" component="h2" style={{minHeight:70}}>
+                                            {restaurant.restaurant_name}
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" component="p" style={{marginBottom:8}}>
+                                        {restaurant.categories}
+                                    </Typography>
+                                    <div className="card-footer">
+                                        <div className="card-footer-rating">
+                                             <i className="fa fa-star"></i><span style={{marginLeft:4}}>{restaurant.customer_rating} ({restaurant.number_customers_rated})</span> 
+                                        </div>
+                                        <div> 
+                                        <i className="fa fa-inr"></i>{restaurant.average_price} for two
+                                        </div>
+                                    </div>
+                                    
+                                    </CardContent>
+                                </CardActionArea>                      
+                            </Card>
+                            </Grid>  
+                        ))}
+                    </Grid>                
+                </Container>
             </div>
-        );
+        )
     }
 
 }
 
-export default Home;
+export default withStyles(styles)(Home);

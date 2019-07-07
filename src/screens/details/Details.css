@@ -1,0 +1,26 @@
+.restaurant-details-header{
+    background: lightgray;
+}
+.uppercase{
+    text-transform: uppercase;
+}
+.capitalize{
+    text-transform: capitalize;
+}
+.item-list{
+    margin: 0px;
+    padding: 0px;
+}
+
+.redColor{
+    color: #BC4B4A;
+}
+
+.greenColor {
+    color: #5C995D;
+}
+
+
+.bold{
+    font-weight: bold !important;
+}
