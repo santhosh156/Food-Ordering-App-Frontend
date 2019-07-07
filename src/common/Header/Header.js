@@ -14,7 +14,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
 import Snackbar from '@material-ui/core/Snackbar';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -162,18 +162,23 @@ class Header extends Component {
         let that = this;
         xhrLogin.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
-                let loginData = JSON.parse(this.responseText);
-                sessionStorage.setItem("uuid", JSON.parse(this.responseText).id);
-                sessionStorage.setItem("access-token", xhrLogin.getResponseHeader("access-token"));
-                sessionStorage.setItem("login", loginData.first_name);
+                if (xhrLogin.status === 200 || xhrLogin.status === 201){
+                    let loginData = JSON.parse(this.responseText);
+                    sessionStorage.setItem("uuid", JSON.parse(this.responseText).id);
+                    sessionStorage.setItem("access-token", xhrLogin.getResponseHeader("access-token"));
+                    sessionStorage.setItem("login", loginData.first_name);
 
-                that.setState({
-                    loggedIn: true,
-                    loggedInFirstName: loginData.first_name
-                });
-                that.snackBarHandler("Logged in successfully!");
+                    that.setState({
+                        loggedIn: true,
+                        loggedInFirstName: loginData.first_name
+                    });
+                    that.snackBarHandler("Logged in successfully!");
 
-                that.closeModalHandler();
+                    that.closeModalHandler();
+                } else {
+                    that.setState({loginpasswordRequired: "dispBlock"});
+                    that.setState({loginpasswordError: JSON.parse(this.responseText).message});
+                }
             }
         });
 
@@ -182,6 +187,7 @@ class Header extends Component {
         xhrLogin.setRequestHeader("Content-Type", "application/json");
         xhrLogin.setRequestHeader("Cache-Control", "no-cache");
         xhrLogin.send(loginData);
+        
     }
 
     inputLoginContactnoHandler = (e) => {
@@ -245,18 +251,15 @@ class Header extends Component {
         xhrSignup.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
                 if (xhrSignup.status === 200 || xhrSignup.status === 201){
-                that.setState({
-                    signupSuccess: true,
-                });
-                that.snackBarHandler("Registered successfully! Please login now!");
+                    that.setState({
+                        signupSuccess: true,
+                    });
+                    that.snackBarHandler("Registered successfully! Please login now!");
+                } else {
+                    that.setState({contactnoRequired: "dispBlock"});
+                    that.setState({contactnoError: "This contact number is already registered! Try other contact number."});
+                }
             }
-            /*else{
-                
-               that.setState({
-                signupFailStatus: JSON.parse(this.responseText)
-             });
-            }*/
-        }
         });
 
         xhrSignup.open("POST", "http://localhost:8080/api/customer/signup");
@@ -333,9 +336,9 @@ class Header extends Component {
 
                     <Grid container spacing={3} justify="space-between" alignItems="center">
                         <Grid item xs={12} sm>
-                            <div className="app-logo"> 
+                            <Link to="/" className="app-logo"> 
                                 <Fastfood style={{fontSize: "35px"}}/>
-                            </div>
+                            </Link>
                         </Grid>
                         { this.props.match.path ==="/" ? <Grid item xs={12} sm> <div className="searchbox">
                             <Search />
@@ -394,7 +397,7 @@ class Header extends Component {
                             <InputLabel htmlFor="loginpassword">Password</InputLabel>
                             <Input id="loginpassword" type="password" className={this.state.password} onChange={this.inputLoginpasswordHandler} />
                             <FormHelperText className={this.state.loginpasswordRequired}>
-                                <span className="red">required</span>
+                                <span className="red">{this.state.loginpasswordError}</span>
                             </FormHelperText>
                         </FormControl>
                         <br /> <br />
