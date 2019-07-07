@@ -22,3 +22,7 @@
 .hightLightPayment{
     color: blue;
 }
+
+.radioButtons .MuiTypography-body1{
+    font-size: 14px !important;
+}

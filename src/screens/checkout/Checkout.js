@@ -101,17 +101,29 @@ class Checkout extends Component {
         }
     }
 
+    /**
+     * @description - On component mount loading default values like states,  payment modes and sp..
+     */
     componentWillMount() {
+        // getting  cart details from details page throught router state
         this.setState({
             cartDetail: this.props.location.state.cartDetail
         });
-        if(this.state.cartDetail === null || this.state.cartDetail === undefined){
+        if(this.props.location.state.cartDetail === null || this.props.location.state.cartDetail === undefined){
             this.props.history.push("/");
         }
+
+        // Loading existing address of logged in user
         this.getExistingAddress();
+        // Loading all states
         this.getStates();
+        // Loading Payment modes
         this.getPaymentModes();
     }
+
+    /**
+     * @description - Loading existing address of logged in user
+     */
     getExistingAddress = () => {
         let dataExistingAddress = null;
         let xhrExistingAddress = new XMLHttpRequest();
@@ -119,7 +131,7 @@ class Checkout extends Component {
         xhrExistingAddress.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
                 let data = JSON.parse(this.responseText).addresses;
-                console.log("exAddress:", data);
+                // console.log("exAddress:", data);
                 that.setState({
                     existingAddress : data
                 });
@@ -133,6 +145,10 @@ class Checkout extends Component {
         xhrExistingAddress.send(dataExistingAddress);
     }
 
+
+    /**
+     * @description - Loading all states to fill details of new address
+     */
     getStates = () => {
         let dataStates = null;
         let xhrStates = new XMLHttpRequest();
@@ -140,7 +156,7 @@ class Checkout extends Component {
         xhrStates.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
                 let data = JSON.parse(this.responseText).states;
-                console.log("states:", data);
+                // console.log("states:", data);
                 that.setState({
                     states : data
                 });
@@ -152,6 +168,9 @@ class Checkout extends Component {
         xhrStates.send(dataStates);
     }
 
+    /**
+     * @description - Loading all payment modes from server
+     */
     getPaymentModes = () => {
         let dataPaymentModes = null;
         let xhrPaymentModes = new XMLHttpRequest();
@@ -159,7 +178,7 @@ class Checkout extends Component {
         xhrPaymentModes.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
                 let data = JSON.parse(this.responseText).paymentMethods;
-                console.log("paymentMethods:", data);
+                // console.log("paymentMethods:", data);
                 that.setState({
                     paymentModes : data
                 });
@@ -171,30 +190,55 @@ class Checkout extends Component {
         xhrPaymentModes.send(dataPaymentModes);
     }
 
+    /**
+     * @description - FlatNo change handler and update component state
+     */
     inputFlatNoChangeHandler = (e) => {
         this.setState({ newFlatNo: e.target.value });
     }
     
+    /**
+     * @description - Locality change handler and update component state
+     */    
     inputLocalityChangeHandler = (e) => {
         this.setState({ newLocality: e.target.value });
     }
     
+    /**
+     * @description - City change handler and update component state
+     */
     inputCityChangeHandler = (e) => {
         this.setState({ newCity: e.target.value });
     }
+
+    /**
+     * @description - State change handler and update component state
+     */
     inputStateChangeHandler = (e) => {
         this.setState({ newState: e.target.value });
     }
     
+    /**
+     * @description - Pincode change handler and update component state
+     */
     inputPincodeChangeHandler = (e) => {
         this.setState({ newPincode: e.target.value });
     }
+
+    /**
+     * @description - Payment mode change handler and update component state
+     */
     handlePaymentModeChangeHandler = (e) => {
         this.setState({ selectedPaymentMode: e.target.value });
     }
 
+    /**
+     * @description - Get details from user and save new address through Rest API
+     */
     saveNewAddress = () => {
         let pincodePattern =/^\d{6}$/;
+
+        // Validating Fields
         this.state.newFlatNo === "" ? this.setState({ flatNoRequired: "dispBlock" }) : this.setState({ flatNoRequired: "dispNone" });
         this.state.newLocality === "" ? this.setState({ localityRequired: "dispBlock" }) : this.setState({ localityRequired: "dispNone" });
         this.state.newCity === "" ? this.setState({ cityRequired: "dispBlock" }) : this.setState({ cityRequired: "dispNone" });
@@ -210,6 +254,7 @@ class Checkout extends Component {
             this.setState({ pincodeValidationMessage: "" });
         }
 
+        // Return if any fields not filled or not in right pattern
         if( this.state.newFlatNo === "" || 
             this.state.newLocality === "" ||
             this.state.newCity === "" ||
@@ -219,7 +264,7 @@ class Checkout extends Component {
             return;
         }
 
-
+        // Filling temp address object with values to push to server
         let dataNewAddress = JSON.stringify({
             "city": this.state.newCity,
             "flat_building_name": this.state.newFlatNo,
@@ -228,6 +273,7 @@ class Checkout extends Component {
             "state_uuid": this.state.newState
         });
 
+        // Rest call to add address
         let xhrNewAddress = new XMLHttpRequest();
         let that = this;
         xhrNewAddress.addEventListener("readystatechange", function () {
@@ -235,11 +281,15 @@ class Checkout extends Component {
                 that.setState({
                     newAddressAdded: true
                 });
+                // Resettemp address object
                 that.resetNewAddress();
+                // On success - get all existing address
                 that.getExistingAddress();
+                // update tab component state
                 that.setState({
                     activeTab: 0
                 });
+                // Success message to user
                 that.snackBarHandler("New address added!!");
             }
         });
@@ -252,12 +302,18 @@ class Checkout extends Component {
 
     }
 
+    /**
+     * @description - update Selected address in component state
+     */
     selectThisAddress = (_address) => {
         this.setState({
             selectedAddress: _address
         })
     }
 
+    /**
+     * @description - Method to reset address related state after success
+     */
     resetNewAddress = () => {
         this.setState({
             newCity: '',
@@ -274,6 +330,10 @@ class Checkout extends Component {
         });
     }
 
+    /**
+     *
+     *@description - Stepper next button handler
+     */
     handleNext = () => {
         if(this.state.selectedAddress === null){
             this.snackBarHandler("Please Select Delivery address.");
@@ -290,16 +350,21 @@ class Checkout extends Component {
         }
     }
 
+    /**
+     * @description - place order method 
+     */
     placeOrder = () => {
 
         let itemList = [];
-
+            // Checking  cartdetail and selected address available  or not , before place order and alert user
         if(this.state.cartDetail === null ||
             this.state.selectedAddress === null ||
             this.state.selectedPaymentMode === null){
                 this.snackBarHandler("Unable to place your order! Please try again!");
                 return;
             }
+
+        // setting items and quantities from cartdetails from details page
         this.state.cartDetail.itemList.forEach(_itemList => {
             let tempObj= {
                 "item_id": _itemList.item.id,
@@ -309,6 +374,7 @@ class Checkout extends Component {
             itemList.push(tempObj);
         });
 
+        // Temp object to fill all values  
         let dataOrder = JSON.stringify({
             "address_id": this.state.selectedAddress.id,
             "bill": this.state.cartDetail.totalPrice,
@@ -319,7 +385,7 @@ class Checkout extends Component {
             "restaurant_id": this.state.cartDetail.restaurant.id
           });
 
-
+        // Rest api to place order  
         let xhrOrder = new XMLHttpRequest();
         let that = this;
         xhrOrder.addEventListener("readystatechange", function () {
@@ -331,7 +397,7 @@ class Checkout extends Component {
                        selectedAddress: null,
                        selectedPaymentMode: null
                    });
-                   that.props.history.push('/');
+                //    that.props.history.push('/');
                 }else{
                     that.snackBarHandler("Unable to place your order! Please try again!");
                 }
@@ -347,7 +413,11 @@ class Checkout extends Component {
         
     }
     
-     handleBack = () => {
+    /**
+     *
+     *@description - stepper back button handler
+     */
+    handleBack = () => {
         if(this.state.activeStep === 1){
             this.setState({
                 activeStep: 0
@@ -355,31 +425,48 @@ class Checkout extends Component {
         }
     }
     
+    /**
+     * @description - reset stepper settings reset
+     */
     handleReset = () => {
         this.setState({
             activeStep: 0
         })
     }
 
+    /**
+     * @description - tab value change handler
+     */
     handleChange = (event, newValue) => {
         this.setState({
             activeTab: newValue
         })
     }
 
+    /**
+     * @description - Reset  tab settings
+     */
     handleTabReset = () => {
         this.setState({
             activeTab: 0
         })
     }
 
+    /**
+     * @description - snackbar common method to handle all messages
+     */
     snackBarHandler = (message) => {
+        // close all prev snackbar
         this.setState({ snackBarOpen: false});
+        // Setting messages to snackbar
         this.setState({ snackBarMessage: message});
+        // Showing new snackbar with message
         this.setState({ snackBarOpen: true});
     }
     
-
+    /**
+     * @description - default component render method
+     */
     render() {
         const { classes } = this.props;
         let existAddress = this.state.existingAddress || [];
@@ -526,7 +613,7 @@ class Checkout extends Component {
                                             >
                                             {(this.state.paymentModes || []).map((pModes,index) => (
                                                 <FormControlLabel key={pModes.id} value={pModes.id} control={<Radio />} label={pModes.payment_name} 
-                                                checked={this.state.selectedPaymentMode === pModes.id} />
+                                                checked={this.state.selectedPaymentMode === pModes.id} className="radioButtons"/>
                                             ))}
                                             </RadioGroup>
                                         </FormControl>
@@ -565,7 +652,7 @@ class Checkout extends Component {
                             <Card className={classes.card}>
                                 <CardContent>
                                      <Typography className={classes.title} display="inline" variant="h6">Summary </Typography>
-                                     <Typography className={classes.title} display="block" variant="caption">{this.state.cartDetail.restaurant.restaurant_name} </Typography>
+                                     <Typography className={classes.title} display="block" variant="body" style={{marginTop:8, marginBottom:8}}>{this.state.cartDetail.restaurant.restaurant_name} </Typography>
                                     {(this.state.cartDetail.itemList || []).map((cartItem, index) => (
                                             <Grid item xs container key={cartItem.item.id} >
                                                 <Grid container spacing={2} direction="row" justify="space-between" alignItems="center">
@@ -585,7 +672,7 @@ class Checkout extends Component {
                                                 </Grid>
                                             </Grid>
                                         ))}
-                                        <Divider />
+                                        <Divider style={{ marginTop:8, marginBottom:8}} />
                                         <Grid item xs container justify="space-between">
                                             <Grid item >
                                                 <Typography variant="caption"  gutterBottom className="bold">

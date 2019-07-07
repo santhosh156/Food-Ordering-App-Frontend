@@ -25,6 +25,7 @@ class Controller extends Component {
            <Switch>
               <Route exact path='/' render={(props) => <Home {...props} baseUrl = {this.baseUrl} /> }  />
               <Route exact path='/restaurant/:id' render={(props) => <Details {...props} baseUrl = {this.baseUrl} /> }  />
+              {/* Added private router for checkout page - because only login user can go that page */}
               <PrivateRoute 
                   exact 
                   path='/checkout'
