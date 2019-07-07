@@ -8,10 +8,6 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import ButtonBase from '@material-ui/core/ButtonBase';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
-import { faRupeeSign } from '@fortawesome/free-solid-svg-icons';
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
@@ -237,7 +233,7 @@ const styles = theme => ({
                                 <Grid item container spacing={4}>
                                     <Grid item>
                                         <Typography variant="body2" style={{ cursor: 'pointer' }}>
-                                            <FontAwesomeIcon icon={faStar} /><span style={{marginLeft:4}}>{restaurant.customer_rating}</span> 
+                                        <i className="fa fa-star"></i><span style={{marginLeft:4}}>{restaurant.customer_rating}</span> 
                                         </Typography>
                                         <Typography variant="body2" style={{ cursor: 'pointer' }} className="uppercase">
                                             Average Rating by ({restaurant.number_customers_rated}) Customers
@@ -245,7 +241,7 @@ const styles = theme => ({
                                     </Grid>
                                     <Grid item>
                                         <Typography variant="body2" style={{ cursor: 'pointer' }}>
-                                            <FontAwesomeIcon icon={faRupeeSign}/>{restaurant.average_price}
+                                        <i className="fa fa-inr"></i>{restaurant.average_price}
                                         </Typography>
                                         <Typography variant="body2" style={{ cursor: 'pointer' }} className="uppercase">
                                             Average cost for two people
@@ -273,13 +269,13 @@ const styles = theme => ({
                                                         <Grid container spacing={2} direction="row" justify="space-between" alignItems="center">
                                                             <Grid item >
                                                                 <Typography variant="caption"  gutterBottom className="capitalize">
-                                                                    <FontAwesomeIcon icon={faCircle} className={item.item_type !== 'VEG' ? 'redColor' : 'greenColor'} />
+                                                                    <i className={item.item_type !== 'VEG' ? 'fa fa-circle redColor' : 'fa fa-circle greenColor'} />
                                                                     <span style={{marginLeft:8}} >{item.item_name}</span>
                                                                 </Typography>
                                                             </Grid> 
                                                             <Grid item >
                                                                 <Typography variant="caption"  gutterBottom>
-                                                                    <FontAwesomeIcon icon={faRupeeSign}/>
+                                                                <i className="fa fa-inr"></i>
                                                                     <span>{item.price}</span>
                                                                     <IconButton aria-label="Add to cart"  onClick={this.addToCart.bind(this,item,category)}>
                                                                         <AddIcon />
@@ -306,7 +302,7 @@ const styles = theme => ({
                                                         <Grid container spacing={2} direction="row" justify="space-between" alignItems="center">
                                                             <Grid item >
                                                                 <Typography variant="caption"  gutterBottom className="capitalize">
-                                                                    <FontAwesomeIcon icon={faCircle} className={cartItem.item.item_type !== 'VEG' ? 'redColor' : 'greenColor'} />
+                                                                    <i className={cartItem.item.item_type !== 'VEG' ? 'fa fa-stop-circle-o redColor' : 'fa fa-stop-circle-o greenColor'} />
                                                                     <span style={{marginLeft:8}} >{cartItem.item.item_name}</span>
                                                                 </Typography>
                                                             </Grid> 
@@ -319,7 +315,7 @@ const styles = theme => ({
                                                                     <IconButton aria-label="Add Item" onClick={this.addAnItemFromCart.bind(this, cartItem, index)}>
                                                                         <AddIcon />
                                                                     </IconButton>
-                                                                    <FontAwesomeIcon icon={faRupeeSign}/>
+                                                                    <i className="fa fa-inr"></i>
                                                                     <span>{cartItem.totalItemPrice}</span>                                                                    
                                                                 </Typography>
                                                             </Grid>                                                            
@@ -334,7 +330,7 @@ const styles = theme => ({
                                                     </Grid>
                                                     <Grid item >
                                                         <Typography variant="caption"  gutterBottom className="bold">
-                                                            <FontAwesomeIcon icon={faRupeeSign}/>
+                                                             <i className="fa fa-inr"></i>
                                                             {cartItems.totalPrice}                                                                  
                                                         </Typography>
                                                     </Grid>

@@ -9,9 +9,6 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
-import { faRupeeSign } from '@fortawesome/free-solid-svg-icons';
 
 const styles = theme => ({
     media: {
@@ -95,10 +92,10 @@ class Home extends Component {
                                     </Typography>
                                     <div className="card-footer">
                                         <div className="card-footer-rating">
-                                             <FontAwesomeIcon icon={faStar} /><span style={{marginLeft:4}}>{restaurant.customer_rating}({restaurant.number_customers_rated})</span> 
+                                             <i className="fa fa-star"></i><span style={{marginLeft:4}}>{restaurant.customer_rating}({restaurant.number_customers_rated})</span> 
                                         </div>
                                         <div> 
-                                            <FontAwesomeIcon icon={faRupeeSign}/>{restaurant.average_price} for two
+                                        <i className="fa fa-inr"></i>{restaurant.average_price} for two
                                         </div>
                                     </div>
                                     
