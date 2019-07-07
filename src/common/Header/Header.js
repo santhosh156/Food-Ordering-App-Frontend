@@ -14,6 +14,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import Grid from '@material-ui/core/Grid';
 
 const customStyles = {
     content: {
@@ -183,19 +184,26 @@ class Header extends Component {
     render() {  
         return(
             <div>
-                <header className="app-header flex-container">
-                    <div className="app-logo"> 
-                        <Fastfood style={{fontSize: "35px"}}/>
-                    </div>
-                    { this.props.match.path ==="/" ? <div className="searchbox">
-                        <Search />
-                        <Input style={{color: "grey"}} type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
-                    </div> : ""}
-                    <div className="login">
-                        <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
-                            <AccountCircle className="account-circle"/>LOGIN
-                        </Button>
-                    </div>
+                <header className="app-header">
+
+                    <Grid container spacing={3} justify="space-between" alignItems="center">
+                        <Grid item xs={12} sm={3}>
+                            <div className="app-logo"> 
+                                <Fastfood style={{fontSize: "35px"}}/>
+                            </div>
+                        </Grid>
+                        { this.props.match.path ==="/" ? <Grid item xs={12} sm={3}> <div className="searchbox">
+                            <Search />
+                            <Input style={{color: "grey"}} type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
+                        </div> </Grid> : ""}
+                        <Grid item xs={12} sm={3}>
+                            <div className="login">
+                                <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
+                                    <AccountCircle className="account-circle"/>LOGIN
+                                </Button>
+                            </div>
+                        </Grid>
+                    </Grid>
                 </header>
 
                 <Modal  ariaHideApp={false} 
