@@ -65,3 +65,7 @@
       text-align: right;
     }
 }
+
+::-webkit-input-placeholder {
+    text-align: center;
+}

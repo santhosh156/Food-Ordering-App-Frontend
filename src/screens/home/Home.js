@@ -120,7 +120,7 @@ class Home extends Component {
                             </Grid>  
                         ))}
                  </Grid> ) : (
-                      <Typography variant="body2" color="textSecondary" component="p" style={{marginBottom:8}}>
+                      <Typography variant="h6" color="textPrimary" component="h6" style={{marginBottom:8}}>
                           No restaurant with given name.
                       </Typography>
                  )  }             

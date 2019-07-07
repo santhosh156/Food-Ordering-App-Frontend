@@ -20,7 +20,6 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 
@@ -150,12 +149,20 @@ class Header extends Component {
         } else if (this.state.loginContactno.toString().match(/^(?=.*\d).{10,10}$/i) === null) {
             this.setState({loginContactnoRequired: "dispBlock"});
             this.setState({loginContactnoError: "Invalid Contact"});
+            return;
         } else {
             this.setState({loginContactnoRequired: "dispNone"});
             this.setState({loginContactnoError: ""});
         }
 
-        this.state.loginpassword === "" ? this.setState({loginpasswordRequired: "dispBlock"}) : this.setState({loginpasswordRequired: "dispNone"});
+        if (this.state.loginpassword === "") {
+            this.setState({loginpasswordRequired: "dispBlock"});
+            this.setState({loginpasswordError: "required"});
+            return;
+        } else {
+            this.setState({loginpasswordRequired: "dispNone"});
+            this.setState({loginpasswordError: ""});
+        }
 
         let loginData = null;
         let xhrLogin = new XMLHttpRequest();
@@ -230,6 +237,7 @@ class Header extends Component {
         if (this.state.contactno === "") {
             this.setState({contactnoRequired: "dispBlock"});
             this.setState({contactnoError: "required"});
+            return;
         } else if (this.state.contactno.toString().match(/^(?=.*\d).{10,10}$/i) === null) {
             this.setState({contactnoRequired: "dispBlock"});
             this.setState({contactnoError: "Contact No. must contain only numbers and must be 10 digits long"});
@@ -255,9 +263,10 @@ class Header extends Component {
                         signupSuccess: true,
                     });
                     that.snackBarHandler("Registered successfully! Please login now!");
+                    that.openModalHandler();
                 } else {
                     that.setState({contactnoRequired: "dispBlock"});
-                    that.setState({contactnoError: "This contact number is already registered! Try other contact number."});
+                    that.setState({contactnoError: JSON.parse(this.responseText).message});
                 }
             }
         });
@@ -340,10 +349,14 @@ class Header extends Component {
                                 <Fastfood style={{fontSize: "35px"}}/>
                             </Link>
                         </Grid>
-                        { this.props.match.path ==="/" ? <Grid item xs={12} sm> <div className="searchbox">
-                            <Search />
-                            <Input style={{color: "grey", width:250}} className="searchField" type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
-                        </div> </Grid> : ""}
+                        { this.props.match.path ==="/" ? 
+                            <Grid item xs={12} sm> 
+                                <div className="searchbox">
+                                    <Search />
+                                    <Input style={{color: "grey", width:250}} className="searchField" type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
+                                </div> 
+                            </Grid> : ""}
+                            
                         <Grid item xs={12} sm >
                             <div className="login">
                                 {this.state.loggedIn ? 
@@ -354,9 +367,9 @@ class Header extends Component {
                                     </Button>
                                     <StyledMenu id="simple-menu" anchorEl={this.state.anchorEl} open={Boolean(this.state.anchorEl)} onClose={this.handleMenuClose.bind(this,'')}>
                                         <StyledMenuItem className="menu-item" onClick={this.handleMenuClose.bind(this,'profile')}>
-                                        <ListItemText primary="Profile" />
+                                        <ListItemText primary="My Profile" />
                                         </StyledMenuItem> 
-                                        <Divider light /> 
+                                        
                                         <StyledMenuItem className="menu-item" onClick={this.handleMenuClose.bind(this, 'logout')}>
                                         <ListItemText primary="Logout" />
                                         </StyledMenuItem> 
