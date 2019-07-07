@@ -16,6 +16,13 @@ import PropTypes from 'prop-types';
 import Snackbar from '@material-ui/core/Snackbar';
 import { withRouter } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import { withStyles } from '@material-ui/core/styles';
+import ListItemText from '@material-ui/core/ListItemText';
+import Divider from '@material-ui/core/Divider';
+import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
 
 const customStyles = {
     content: {
@@ -25,7 +32,8 @@ const customStyles = {
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)'
-    }
+    },
+    
 };
 
 
@@ -40,6 +48,43 @@ const TabContainer = function(props) {
 TabContainer.propTypes = {
     children: PropTypes.node.isRequired
 };
+
+const StyledMenu = withStyles({
+    paper: {
+      border: '1px solid #d3d4d5',
+      backgroundColor: '#DFDFDF',
+      padding: 8,
+      marginTop: 4,
+    },
+  })(props => (
+    <Menu
+      elevation={0}
+      getContentAnchorEl={null}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      {...props}
+    />
+  ));
+
+
+ const StyledMenuItem = withStyles(theme => ({
+    root: {
+      padding: 4,
+      minHeight: 'auto',
+      '&:focus': {
+        backgroundColor: theme.palette.primary.main,
+        '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+          color: theme.palette.common.white,
+        },
+      },
+    },
+  }))(MenuItem);
 
 class Header extends Component {
 
@@ -70,7 +115,16 @@ class Header extends Component {
             contactnoRequired: "dispNone",
             contactnoError: "",
             signupSuccess: false,
-            loggedIn: sessionStorage.getItem("access-token") == null ? false : true
+            loggedIn: sessionStorage.getItem("access-token") == null ? false : true,
+            loggedInFirstName: sessionStorage.getItem('login') == null ? "" : sessionStorage.getItem('login'),
+            loggedInLastName: "",
+            loggedInEmail: "",
+            loggedInContactNumber:"",
+            open: false,
+            anchorEl: null,
+            snackBarOpen: false,
+            snackBarMessage: '',
+
         };
     }
 
@@ -108,12 +162,16 @@ class Header extends Component {
         let that = this;
         xhrLogin.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
+                let loginData = JSON.parse(this.responseText);
                 sessionStorage.setItem("uuid", JSON.parse(this.responseText).id);
                 sessionStorage.setItem("access-token", xhrLogin.getResponseHeader("access-token"));
+                sessionStorage.setItem("login", loginData.first_name);
 
                 that.setState({
-                    loggedIn: true
+                    loggedIn: true,
+                    loggedInFirstName: loginData.first_name
                 });
+                that.snackBarHandler("Logged in successfully!");
 
                 that.closeModalHandler();
             }
@@ -190,6 +248,7 @@ class Header extends Component {
                 that.setState({
                     signupSuccess: true,
                 });
+                that.snackBarHandler("Registered successfully! Please login now!");
             }
             /*else{
                 
@@ -236,6 +295,36 @@ class Header extends Component {
         });
     }
 
+    handleMenuClick = (event) => {
+        this.setState({ anchorEl: event.currentTarget });
+    }
+
+    handleMenuClose = (purpose, e) => {
+        if( purpose === 'profile'){
+            this.props.history.push("/profile");
+        } else if( purpose === 'logout') {
+            sessionStorage.clear();
+            this.setState({
+                loggedIn: false
+            });
+            this.props.history.push("/");
+        } 
+        this.setState({ anchorEl: null });
+    };
+
+    /**
+     *
+     *@description - Common snackbar method to show messages
+     */
+    snackBarHandler = (message) => {
+        // if any snackbar open already close that
+        this.setState({ snackBarOpen: false});
+        // updating component state snackbar message
+        this.setState({ snackBarMessage: message});
+        // Show snackbar
+        this.setState({ snackBarOpen: true});
+    }
+
     render() {  
         return(
             <div>
@@ -254,9 +343,28 @@ class Header extends Component {
                         </div> </Grid> : ""}
                         <Grid item xs={12} sm >
                             <div className="login">
-                                <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
-                                    <AccountCircle className="account-circle"/>LOGIN
-                                </Button>                                
+                                {this.state.loggedIn ? 
+                                    <div>
+                                    <Button className="loggedInButton" disableRipple={true} varient='text' aria-owns={this.state.anchorEl ? 'simple-menu' : undefined}
+                                    aria-haspopup="true" onClick={this.handleMenuClick}>
+                                        <AccountCircle className="account-circle" style={{marginRight:4}}/> {this.state.loggedInFirstName}
+                                    </Button>
+                                    <StyledMenu id="simple-menu" anchorEl={this.state.anchorEl} open={Boolean(this.state.anchorEl)} onClose={this.handleMenuClose.bind(this,'')}>
+                                        <StyledMenuItem className="menu-item" onClick={this.handleMenuClose.bind(this,'profile')}>
+                                        <ListItemText primary="Profile" />
+                                        </StyledMenuItem> 
+                                        <Divider light /> 
+                                        <StyledMenuItem className="menu-item" onClick={this.handleMenuClose.bind(this, 'logout')}>
+                                        <ListItemText primary="Logout" />
+                                        </StyledMenuItem> 
+                                    </StyledMenu>
+                                    </div>
+                                 : 
+                                    <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
+                                        <AccountCircle className="account-circle"/>LOGIN
+                                    </Button>
+                                }
+                                                                
                             </div>
                         </Grid>
                     </Grid>
@@ -334,22 +442,31 @@ class Header extends Component {
                         </TabContainer>
                         }
                 </Modal>
-                { this.state.signupSuccess === true &&
-                    <Snackbar
-                    anchorOrigin={{ vertiAcal: 'bottom', horizontal: 'left', }}
-                    autoHideDuration={3000}
-                    ContentProps={{ 'aria-describedby': 'message-id', }}
-                    message={<span id="message-id">Registered successfully! Please login now!</span>}
+
+                <Snackbar 
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }} 
+                        open={this.state.snackBarOpen} 
+                        autoHideDuration={6000}  
+                        onClose={() => this.setState({ snackBarOpen: false })}
+                        ContentProps={{
+                            'aria-describedby': 'message-id',
+                        }}
+                        message={<span id="message-id">{this.state.snackBarMessage}</span>}
+                        action={[
+                            <IconButton
+                                key="close"
+                                aria-label="Close"
+                                color="inherit"
+                                // className={classes.close}
+                                onClick={() => this.setState({ snackBarOpen: false })}
+                                >
+                                <CloseIcon />
+                            </IconButton>
+                        ]}
                     />
-                }
-                { this.state.loggedIn === true &&
-                    <Snackbar
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
-                    autoHideDuration={3000}
-                    ContentProps={{ 'aria-describedby': 'message-id', }}
-                    message={<span id="message-id">Logged in successfully!</span>}
-                    />
-                }
             </div>
         )
     }
