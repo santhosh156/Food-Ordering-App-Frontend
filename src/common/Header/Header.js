@@ -256,8 +256,10 @@ class Header extends Component {
                             <div className="login">
                                 <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
                                     <AccountCircle className="account-circle"/>LOGIN
-                                </Button>                                
+                                </Button>
+                                                                
                             </div>
+
                         </Grid>
                     </Grid>
                 </header>

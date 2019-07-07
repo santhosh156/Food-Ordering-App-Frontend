@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Home from './home/Home';
 import Details from './details/Details';
 import Checkout from './checkout/Checkout';
+import Profile from './profile/Profile';
 import  PrivateRoute  from '../common/PrivateRoute';
 
 class Controller extends Component {
@@ -25,6 +26,8 @@ class Controller extends Component {
            <Switch>
               <Route exact path='/' render={(props) => <Home {...props} baseUrl = {this.baseUrl} /> }  />
               <Route exact path='/restaurant/:id' render={(props) => <Details {...props} baseUrl = {this.baseUrl} /> }  />
+              <Route exact path="/profile" render={props => <Profile {...props} baseUrl={this.baseUrl} />}
+          />  
               {/* Added private router for checkout page - because only login user can go that page */}
               <PrivateRoute 
                   exact 
