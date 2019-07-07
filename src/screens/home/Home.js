@@ -22,7 +22,7 @@ class Home extends Component {
         super(props);
         this.state = {
             restaurants: null,
-            filteredRestaurants: null,
+            filteredRestaurants: [],
             loggedIn: sessionStorage.getItem("access-token") == null ? false : true
         }
     }
@@ -87,8 +87,9 @@ class Home extends Component {
             <div>
                 <Header baseUrl={this.props.baseUrl} searchChangeHandler={this.applyFilter}/>
                 <Container fixed style={{ 'margin':16}}>
+                 {this.state.filteredRestaurants.length > 0 ? (
                     <Grid container spacing={3}>
-                        {(this.state.filteredRestaurants || []).map((restaurant, index) => (
+                        {(this.state.filteredRestaurants ).map((restaurant, index) => (
                             <Grid item xs={6} sm={3} key={restaurant.id} >
                             <Card onClick={this.restaurantClickHandler.bind(this,restaurant.id)} >
                                 <CardActionArea>
@@ -118,7 +119,11 @@ class Home extends Component {
                             </Card>
                             </Grid>  
                         ))}
-                    </Grid>                
+                 </Grid> ) : (
+                      <Typography variant="body2" color="textSecondary" component="p" style={{marginBottom:8}}>
+                          No restaurant with given name.
+                      </Typography>
+                 )  }             
                 </Container>
             </div>
         )
