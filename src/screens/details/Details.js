@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import './Details.css';
 import Header from '../../common/Header/Header';
 import Container from '@material-ui/core/Container';
@@ -13,7 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { faRupeeSign } from '@fortawesome/free-solid-svg-icons';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
@@ -26,7 +24,6 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Badge from '@material-ui/core/Badge';
-import { shadows } from '@material-ui/system';
 
 const styles = theme => ({
     root: {
@@ -74,7 +71,8 @@ const styles = theme => ({
                             itemList: [], 
                             totalPrice: 0, 
                             totalItemCount: 0
-                        }
+                        },
+            loggedIn: sessionStorage.getItem("access-token") == null ? false : true
         }
     }
 
@@ -172,10 +170,36 @@ const styles = theme => ({
         this.setState({ cartItems: addedCartItem});    
     }
 
+    checkOutCart = (e) => {
+        this.checkLoginUpdate();
+        const addedCartItem = this.state.cartItems;
+        if( addedCartItem.itemList.length <=0 ){
+            this.snackBarHandler("Please add an item to your cart!");
+            return;
+        }else {
+            if(sessionStorage.getItem("access-token") === null){
+                this.snackBarHandler("Please login first!");
+                return;
+            }else{
+                this.props.history.push("/checkout", ); 
+                this.props.history.push({
+                    pathname: "/checkout",
+                    state: { cartDetail: this.state.cartItems}
+                  })   
+            }
+        }
+     }
+
     snackBarHandler = (message) => {
         this.setState({ snackBarOpen: false});
         this.setState({ snackBarMessage: message});
         this.setState({ snackBarOpen: true});
+    }
+
+    checkLoginUpdate = () => {
+        this.setState({
+            loggedIn: sessionStorage.getItem("access-token") == null ? false : true
+        });
     }
 
     render() {
@@ -184,7 +208,7 @@ const styles = theme => ({
         const { classes } = this.props;
         return (
             <div className="details">
-                <Header />                
+                <Header baseUrl={this.props.baseUrl} />              
                 {restaurant !== null ? (
                     <div className={classes.root}>
                         <Paper className={classes.paper}>
@@ -317,7 +341,7 @@ const styles = theme => ({
                                                 </Grid>
                                         </CardContent>
                                         <CardActions>
-                                            <Button variant="contained" color="primary" style={{width:'100%'}}>
+                                            <Button variant="contained" color="primary" style={{width:'100%'}} onClick={this.checkOutCart.bind(this)}>
                                                 CHECKOUT
                                             </Button>
                                         </CardActions>

@@ -24,7 +24,9 @@ class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            restaurants: null
+            restaurants: null,
+            filteredRestaurants: null,
+            loggedIn: sessionStorage.getItem("access-token") == null ? false : true
         }
     }
 
@@ -39,7 +41,8 @@ class Home extends Component {
             const data = JSON.parse(this.responseText).restaurants;
             // console.log('restaurants::',data);
             that.setState({
-                restaurants : data
+                restaurants : data,
+                filteredRestaurants: data,
             }); 
         }
         });
@@ -52,15 +55,29 @@ class Home extends Component {
         this.props.history.push("/restaurant/"+restaurant_id);       
     };
 
+    applyFilter = (e) => {
+        const _searchText = (e.target.value).toLowerCase();
+        let _restaurants = JSON.parse(JSON.stringify(this.state.restaurants));
+        let _filteredRestaurants = [];
+        if(_restaurants !== null && _restaurants.length > 0){
+            _filteredRestaurants = _restaurants.filter((restaurant) => 
+                 (restaurant.restaurant_name.toLowerCase()).indexOf(_searchText) > -1 
+            );
+            this.setState({
+                filteredRestaurants: [..._filteredRestaurants]
+            });
+        }
+    }
+
 
     render() {
         const { classes } = this.props;
         return (
             <div>
-                <Header />
+                <Header baseUrl={this.props.baseUrl} searchChangeHandler={this.applyFilter}/>
                 <Container fixed style={{ 'margin':16}}>
                     <Grid container spacing={3}>
-                        {(this.state.restaurants || []).map((restaurant, index) => (
+                        {(this.state.filteredRestaurants || []).map((restaurant, index) => (
                             <Grid item xs={6} sm={3} key={restaurant.id}>
                             <Card  onClick={this.restaurantClickHandler.bind(this,restaurant.id)} >
                                 <CardActionArea>

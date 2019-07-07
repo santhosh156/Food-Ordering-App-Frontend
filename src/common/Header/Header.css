@@ -44,3 +44,6 @@
 .red {
     color: red;
 }
+.MuiBadge-badge{
+    z-index: 0 !important;
+}
