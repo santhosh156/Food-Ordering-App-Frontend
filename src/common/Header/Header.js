@@ -187,16 +187,16 @@ class Header extends Component {
                 <header className="app-header">
 
                     <Grid container spacing={3} justify="space-between" alignItems="center">
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm>
                             <div className="app-logo"> 
                                 <Fastfood style={{fontSize: "35px"}}/>
                             </div>
                         </Grid>
-                        { this.props.match.path ==="/" ? <Grid item xs={12} sm={3}> <div className="searchbox">
+                        { this.props.match.path ==="/" ? <Grid item xs={12} sm> <div className="searchbox">
                             <Search />
-                            <Input style={{color: "grey"}} type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
+                            <Input style={{color: "grey", width:250}} className="searchField" type="text" placeholder="Search by Restaurant Name" onChange={this.props.searchChangeHandler}/>
                         </div> </Grid> : ""}
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm >
                             <div className="login">
                                 <Button variant = "contained" color = "default" className="login-btn" onClick={this.openModalHandler}>
                                     <AccountCircle className="account-circle"/>LOGIN

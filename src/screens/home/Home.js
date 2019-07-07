@@ -75,8 +75,8 @@ class Home extends Component {
                 <Container fixed style={{ 'margin':16}}>
                     <Grid container spacing={3}>
                         {(this.state.filteredRestaurants || []).map((restaurant, index) => (
-                            <Grid item xs={6} sm={3} key={restaurant.id}>
-                            <Card  onClick={this.restaurantClickHandler.bind(this,restaurant.id)} >
+                            <Grid item xs={6} sm={3} key={restaurant.id} >
+                            <Card onClick={this.restaurantClickHandler.bind(this,restaurant.id)} >
                                 <CardActionArea>
                                     <CardMedia
                                     className={classes.media}
@@ -92,7 +92,7 @@ class Home extends Component {
                                     </Typography>
                                     <div className="card-footer">
                                         <div className="card-footer-rating">
-                                             <i className="fa fa-star"></i><span style={{marginLeft:4}}>{restaurant.customer_rating}({restaurant.number_customers_rated})</span> 
+                                             <i className="fa fa-star"></i><span style={{marginLeft:4}}>{restaurant.customer_rating} ({restaurant.number_customers_rated})</span> 
                                         </div>
                                         <div> 
                                         <i className="fa fa-inr"></i>{restaurant.average_price} for two

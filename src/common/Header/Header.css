@@ -47,3 +47,17 @@
 .MuiBadge-badge{
     z-index: 0 !important;
 }
+
+.searchField.Mui-focused::before,
+.searchField.Mui-focused::after{
+   border-color:white !important;
+} 
+.searchField.Mui-focused .MuiInputBase-input{
+   color: white !important;
+}
+
+@media only screen and (min-width: 600px) {
+    .login {
+      text-align: right;
+    }
+  }
