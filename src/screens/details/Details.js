@@ -72,13 +72,19 @@ const styles = theme => ({
         }
     }
 
+    /**
+     * @description - on component mount calling api to get restaurant details based on restaurant id
+     */
     componentWillMount() {
         const { match: { params } } = this.props;
         this.getRestaurantDetails(params.id);
     }
 
+    /**
+     * @description - Method calling Api to get restaurant details based on restaurant id
+     */
     getRestaurantDetails = (restaurant_id) => {  
-        // Get restaurant details
+        // Get restaurant details based on id
         let dataRestaurantDetails = null;
         let xhrUserProfile = new XMLHttpRequest();
         let that = this;
@@ -100,10 +106,15 @@ const styles = theme => ({
         xhrUserProfile.send(dataRestaurantDetails);
     }
 
+    /**
+     * @description - Method to add items to cart and other calculations
+     */
     addToCart = (item, category) => {
         this.snackBarHandler("Item added to cart!");
         const addedCartItem = this.state.cartItems || { restaurant : this.state.restaurant, itemList: [], totalPrice: 0, totalItemCount: 0};
         let findIndex = null;
+
+        // Finding item from List which already added
          let findItem = addedCartItem.itemList.find((cartItem, index) => {
              if(cartItem.item.id === item.id) {
                  findIndex = index;
@@ -111,6 +122,8 @@ const styles = theme => ({
              }
              return undefined;
          });
+
+         // if Already added then adding quantity and price (total)
          if(findItem !== undefined){
             findItem.quantity =  findItem.quantity + 1;
             findItem.totalItemPrice = findItem.totalItemPrice + item.price;
@@ -118,7 +131,8 @@ const styles = theme => ({
             findIndex = null;
             addedCartItem.totalPrice = addedCartItem.totalPrice + item.price;
             addedCartItem.totalItemCount = addedCartItem.totalItemCount + 1;
-         } else{
+         } else {
+             // If not already added then creating temp object and doing other calculations
             const cartItem = {
                 quantity : 1,
                 categoryName: category.category_name,
@@ -128,34 +142,50 @@ const styles = theme => ({
             }
             addedCartItem.totalPrice = addedCartItem.totalPrice + item.price;
             addedCartItem.totalItemCount = addedCartItem.totalItemCount + 1;
+            // Push items to cart
             addedCartItem.itemList.push(cartItem);
-        }        
+        }       
+        
+        // Finally updating our addedcartitem state 
         this.setState({ cartItems: addedCartItem});      
     }
 
+    /**
+     * @description - Remove item from cart when user click (-) button
+     */
     removeAnItemFromCart = (removeCartItem, index) => {
        
         const addedCartItem = this.state.cartItems;
+        // Finding item based on index
         let findItem = addedCartItem.itemList[index];
+        // Updating finded item based on index
         findItem.quantity =  findItem.quantity - 1;
         findItem.totalItemPrice = findItem.totalItemPrice - findItem.item.price;
         addedCartItem.totalPrice = addedCartItem.totalPrice - findItem.item.price;
-        addedCartItem.totalItemCount = addedCartItem.totalItemCount - 1;  
+        addedCartItem.totalItemCount = addedCartItem.totalItemCount - 1; 
+        
+        // if quantity is goes less than or equal to zero - remove that item from cart
         if( findItem.quantity <= 0)  {
             addedCartItem.itemList.splice(index, 1);
             this.snackBarHandler("Item removed from cart!");
         }else{
             addedCartItem.itemList[index] = findItem;
             this.snackBarHandler("Item quantity descreased by 1!");
-        }        
+        }      
+        // Updating cartitem in component state  
         this.setState({ cartItems: addedCartItem});  
 
     }
 
+    /**
+     * @description - add item from Mycart part - on (+) button click
+     */
     addAnItemFromCart = (addCartItem, index) => {
         this.snackBarHandler("Item quantity increased by 1!");
         const addedCartItem = this.state.cartItems;
+        // Find item based on selected item index
         let findItem = addedCartItem.itemList[index];
+        // Item found update properties 
          if(findItem !== undefined){
             findItem.quantity =  findItem.quantity + 1;
             findItem.totalItemPrice = findItem.totalItemPrice + findItem.item.price;
@@ -163,21 +193,27 @@ const styles = theme => ({
             addedCartItem.totalItemCount = addedCartItem.totalItemCount + 1;
          }     
          addedCartItem.itemList[index] = findItem;
+         // Update cartItems in component state
         this.setState({ cartItems: addedCartItem});    
     }
 
+    /**
+     * @description - Checkout cart functionality goes here
+     */
     checkOutCart = (e) => {
         this.checkLoginUpdate();
         const addedCartItem = this.state.cartItems;
+        // check if items not added - alert user to add item
         if( addedCartItem.itemList.length <=0 ){
             this.snackBarHandler("Please add an item to your cart!");
             return;
         }else {
+            // check if user logged in , if not - alert user to login
             if(sessionStorage.getItem("access-token") === null){
                 this.snackBarHandler("Please login first!");
                 return;
             }else{
-                this.props.history.push("/checkout", ); 
+                // redirect to checkout page and passing cart items to checkout page
                 this.props.history.push({
                     pathname: "/checkout",
                     state: { cartDetail: this.state.cartItems}
@@ -186,18 +222,31 @@ const styles = theme => ({
         }
      }
 
+    /**
+     *
+     *@description - Common snackbar method to show messages
+     */
     snackBarHandler = (message) => {
+        // if any snackbar open already close that
         this.setState({ snackBarOpen: false});
+        // updating component state snackbar message
         this.setState({ snackBarMessage: message});
+        // Show snackbar
         this.setState({ snackBarOpen: true});
     }
 
+    /**
+     * @description - Update login component state if any update
+     */
     checkLoginUpdate = () => {
         this.setState({
             loggedIn: sessionStorage.getItem("access-token") == null ? false : true
         });
     }
 
+    /**
+     * @description - render method of component
+     */
     render() {
         let restaurant = this.state.restaurant;
         let cartItems = this.state.cartItems;
@@ -208,14 +257,14 @@ const styles = theme => ({
                 {restaurant !== null ? (
                     <div className={classes.root}>
                         <Paper className={classes.paper}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={2} container>
-                            <ButtonBase className={classes.image} disableRipple> 
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} sm={3} container >
+                            <ButtonBase className={classes.image} disableRipple={true}> 
                                 <img className={classes.img} alt="complex" src={restaurant.photo_URL} />
                             </ButtonBase>
                             </Grid>
-                            <Grid item xs={12} sm container>
-                            <Grid item xs container direction="column" spacing={2}>
+                            <Grid item xs={12} sm container >
+                            <Grid item xs container direction="column" spacing={2} className="responsiveHeader">
                                 <Grid item xs>
                                 <Typography gutterBottom variant="h6">
                                     {restaurant.restaurant_name}
@@ -231,19 +280,19 @@ const styles = theme => ({
                                 
                                 </Grid>
                                 <Grid item container spacing={4}>
-                                    <Grid item>
-                                        <Typography variant="body2" style={{ cursor: 'pointer' }}>
+                                    <Grid item xs={6} sm={2} >
+                                        <Typography variant="body2" style={{ cursor: 'pointer', fontWeight: '500' }}>
                                         <i className="fa fa-star"></i><span style={{marginLeft:4}}>{restaurant.customer_rating}</span> 
                                         </Typography>
-                                        <Typography variant="body2" style={{ cursor: 'pointer' }} className="uppercase">
-                                            Average Rating by ({restaurant.number_customers_rated}) Customers
+                                        <Typography variant="caption" style={{ cursor: 'pointer' }} className="uppercase smallFont">
+                                            Average Rating by {restaurant.number_customers_rated} Customers
                                         </Typography>
                                     </Grid>
-                                    <Grid item>
-                                        <Typography variant="body2" style={{ cursor: 'pointer' }}>
-                                        <i className="fa fa-inr"></i>{restaurant.average_price}
+                                    <Grid item xs={6} sm={2}>
+                                        <Typography variant="body2" style={{ cursor: 'pointer', fontWeight: '500' }}>
+                                        <i className="fa fa-inr"></i><span style={{marginLeft:4}}>{restaurant.average_price}</span>
                                         </Typography>
-                                        <Typography variant="body2" style={{ cursor: 'pointer' }} className="uppercase">
+                                        <Typography variant="caption" style={{ cursor: 'pointer' }} className="uppercase smallFont">
                                             Average cost for two people
                                         </Typography>
                                     </Grid>
@@ -258,11 +307,11 @@ const styles = theme => ({
                                 <Grid item xs={12} sm={5}> 
                                     {(restaurant.categories || []).map((category, index) => (
                                                 
-                                        <div key={category.id}>
-                                            <Typography variant="caption"  gutterBottom>
+                                        <div key={category.id} style={{marginBottom: 16}}>
+                                            <Typography variant="caption"  gutterBottom className="uppercase" >
                                                 {category.category_name}
                                             </Typography>
-                                            <Divider />
+                                            <Divider style={{ marginBottom: 8}} />
                                             <Grid container spacing={2} direction="column" >
                                                 {(category.item_list || []).map((item, index) => (
                                                     <Grid item xs container key={item.id} >
@@ -277,7 +326,7 @@ const styles = theme => ({
                                                                 <Typography variant="caption"  gutterBottom>
                                                                 <i className="fa fa-inr"></i>
                                                                     <span>{item.price}</span>
-                                                                    <IconButton aria-label="Add to cart"  onClick={this.addToCart.bind(this,item,category)}>
+                                                                    <IconButton aria-label="Add to cart"  onClick={this.addToCart.bind(this,item,category)} className="padding-4 margin-l-30">
                                                                         <AddIcon />
                                                                     </IconButton>
                                                                 </Typography>
@@ -308,13 +357,15 @@ const styles = theme => ({
                                                             </Grid> 
                                                             <Grid item >
                                                                 <Typography variant="caption"  gutterBottom>
-                                                                    <IconButton aria-label="Remove Item" onClick={this.removeAnItemFromCart.bind(this, cartItem, index)}>
-                                                                        <RemoveIcon />
+                                                                    <IconButton aria-label="Remove Item" className="padding-4 bold m-r-4" onClick={this.removeAnItemFromCart.bind(this, cartItem, index)}>
+                                                                        <RemoveIcon  style={{fontSize: 16, fill: 'black'}} />
                                                                     </IconButton>
-                                                                    <Typography variant="caption">{cartItem.quantity}</Typography> 
-                                                                    <IconButton aria-label="Add Item" onClick={this.addAnItemFromCart.bind(this, cartItem, index)}>
-                                                                        <AddIcon />
-                                                                    </IconButton>
+                                                                    <Typography variant="body" className="bold">{cartItem.quantity}</Typography> 
+                                                                    <IconButton aria-label="Add Item" className="padding-4 bold m-l-4" onClick={this.addAnItemFromCart.bind(this, cartItem, index)}>
+                                                                        <AddIcon style={{fontSize: 16, fill: 'black'}}/>
+                                                                    </IconButton>                                                                    
+                                                                </Typography>
+                                                                <Typography variant="caption"  gutterBottom className="margin-l-30">
                                                                     <i className="fa fa-inr"></i>
                                                                     <span>{cartItem.totalItemPrice}</span>                                                                    
                                                                 </Typography>
@@ -322,7 +373,7 @@ const styles = theme => ({
                                                         </Grid>
                                                     </Grid>
                                                 ))}
-                                                <Grid item xs container justify="space-between">
+                                                <Grid item xs container justify="space-between" style={{marginTop: 16}}>
                                                     <Grid item >
                                                         <Typography variant="caption"  gutterBottom className="bold">
                                                             Total Amount                                                                  
